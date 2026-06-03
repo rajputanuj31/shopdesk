@@ -7,8 +7,8 @@ node_modules/
 # Build output
 dist/
 
-# SQLite database file (auto-created at runtime)
-backend/data/*.db
+# SQLite database file + WAL sidecars (auto-created at runtime)
+backend/data/chat.db*
 
 # macOS
 .DS_Store
