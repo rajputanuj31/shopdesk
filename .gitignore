@@ -7,8 +7,8 @@ node_modules/
 # Build output
 dist/
 
-# SQLite database file
-data/
+# SQLite database file (auto-created at runtime)
+backend/data/*.db
 
 # macOS
 .DS_Store
