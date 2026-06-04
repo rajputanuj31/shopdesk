@@ -1,0 +1,85 @@
+{
+  "store": {
+    "name": "ShopDesk",
+    "description": "ShopDesk is a US-based online fashion store selling casual and everyday clothing and accessories for men, women, and kids.",
+    "website": "https://shopdesk.com",
+    "founded": "2019"
+  },
+  "products": {
+    "categories": [
+      "T-shirts",
+      "Jeans",
+      "Dresses",
+      "Jackets",
+      "Hoodies",
+      "Accessories",
+      "Footwear",
+      "Kids clothing"
+    ],
+    "sizing": "We offer XS to 3XL in most styles. Each product page has a detailed size guide. If you are between sizes, we recommend sizing up.",
+    "availability": "Products shown on the website are in stock unless marked 'Sold Out'. Restock notifications can be enabled on the product page."
+  },
+  "shipping": {
+    "regions": "We ship within the United States and Canada.",
+    "processing": "Orders are processed within 1–2 business days, excluding weekends and holidays.",
+    "options": {
+      "standard": "5–7 business days — $5.99 flat rate, free on orders over $75",
+      "express": "2–3 business days — $14.99 flat rate",
+      "overnight": "Next business day — $29.99 flat rate. Orders must be placed before 1:00 PM EST."
+    },
+    "canada": "Canadian orders may be subject to customs duties and taxes, which are the customer's responsibility.",
+    "tracking": "A tracking link is emailed automatically once your order ships."
+  },
+  "returns": {
+    "window": "30 days from delivery date.",
+    "eligibility": "Items must be unworn, unwashed, in original packaging, with all tags attached.",
+    "non_returnable": "Undergarments, swimwear, cosmetics, and gift cards are final sale.",
+    "final_sale": "Clearance, markdown, and holiday promotion items are final sale and cannot be returned or exchanged.",
+    "process": "Start a return at https://shopdesk.com/returns. A $4.99 return shipping fee is deducted from your refund.",
+    "refund_timeline": "Refunds are credited to the original payment method within 5–7 business days after warehouse inspection.",
+    "exchanges": "We do not offer direct exchanges. Return the item for a refund and place a new order."
+  },
+  "orders": {
+    "cancellations": "Orders cannot be modified or canceled once placed, as they are immediately sent to fulfillment. Contact support immediately if there's an address error — we'll try our best but cannot guarantee changes.",
+    "order_issues": "For missing items, wrong items, or damaged goods, email support@shopdesk.com with your order number and a photo if applicable. We'll make it right.",
+    "order_status": "Check your order status at https://shopdesk.com/orders using your order number and email."
+  },
+  "payment": {
+    "accepted": [
+      "Visa",
+      "Mastercard",
+      "American Express",
+      "Discover",
+      "PayPal",
+      "Apple Pay",
+      "Google Pay",
+      "Shop Pay"
+    ],
+    "discount_codes": "Only one discount code per order. Codes cannot be applied to sale/clearance items or combined with other promotions.",
+    "security": "All transactions are encrypted and processed securely. We do not store your payment details."
+  },
+  "account": {
+    "creation": "Creating an account is optional but recommended — it lets you track orders, save addresses, and view order history.",
+    "password_reset": "Reset your password at https://shopdesk.com/account/reset.",
+    "guest_checkout": "Guest checkout is fully supported. You'll receive order confirmation and tracking via email."
+  },
+  "promotions": {
+    "newsletter": "Subscribe to our newsletter at https://shopdesk.com for 10% off your first order.",
+    "loyalty": "We don't have a loyalty program yet, but we're working on it!",
+    "student_discount": "We offer a 15% student discount via UNiDAYS. Verify at https://shopdesk.com/student."
+  },
+  "support": {
+    "hours": "Monday–Friday, 9:00 AM – 6:00 PM EST. Closed on US federal holidays.",
+    "email": "support@shopdesk.com",
+    "phone": "1-800-555-7467 (1-800-555-SHOP)",
+    "response_time": "We aim to respond to all emails and voicemails within 24 business hours.",
+    "escalation": "If the AI agent cannot resolve your issue, it will offer to connect you with a human support agent."
+  },
+  "faqs": {
+    "gift_wrapping": "Gift wrapping is available for $3.99 per item, selectable at checkout.",
+    "gift_cards": "Digital gift cards are available in denominations of $25, $50, $100, and $200 at https://shopdesk.com/gift-cards. Gift cards are final sale.",
+    "price_match": "We do not offer price matching.",
+    "wholesale": "For wholesale inquiries, email wholesale@shopdesk.com.",
+    "sustainability": "ShopDesk is committed to sustainable packaging. All shipping materials are recyclable or biodegradable."
+  }
+}

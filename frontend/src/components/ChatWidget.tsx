@@ -10,6 +10,7 @@ export const ChatWidget: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeSuggestions, setActiveSuggestions] = useState<string[]>([]);
 
   const SESSION_KEY = 'shopdesk_chat_session_id';
 
@@ -42,6 +43,9 @@ export const ChatWidget: React.FC = () => {
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
 
+    // Clear active suggestions immediately on send
+    setActiveSuggestions([]);
+
     // 1. Create and append the user message locally
     const tempUserMessage: Message = {
       id: `temp-${Date.now()}`,
@@ -51,45 +55,68 @@ export const ChatWidget: React.FC = () => {
       timestamp: new Date().toISOString(),
     };
 
-    setMessages((prev) => [...prev, tempUserMessage]);
+    const aiReplyMessageId = `ai-${Date.now()}`;
+    const tempAiMessage: Message = {
+      id: aiReplyMessageId,
+      conversation_id: sessionId || '',
+      sender: 'ai',
+      text: '', // start empty for streaming tokens
+      timestamp: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, tempUserMessage, tempAiMessage]);
     setLoading(true);
     setError(null);
 
+    let accumulatedText = '';
+
     try {
-      // 2. Call backend
-      const response = await sendMessage(text, sessionId || undefined);
-
-      // 3. If new session, persist it
-      if (!sessionId && response.sessionId) {
-        setSessionId(response.sessionId);
-        localStorage.setItem(SESSION_KEY, response.sessionId);
-      }
-
-      // 4. Create and append AI reply
-      const aiReplyMessage: Message = {
-        id: `ai-${Date.now()}`,
-        conversation_id: response.sessionId,
-        sender: 'ai',
-        text: response.reply,
-        timestamp: new Date().toISOString(),
-      };
-
-      setMessages((prev) => [...prev, aiReplyMessage]);
+      // 2. Call backend using streaming sendMessage wrapper
+      await sendMessage(
+        text,
+        sessionId || undefined,
+        // onChunk callback
+        (chunk) => {
+          accumulatedText += chunk;
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === aiReplyMessageId ? { ...msg, text: accumulatedText } : msg
+            )
+          );
+        },
+        // onDone callback
+        (data) => {
+          if (!sessionId && data.sessionId) {
+            setSessionId(data.sessionId);
+            localStorage.setItem(SESSION_KEY, data.sessionId);
+          }
+          if (data.suggestions) {
+            setActiveSuggestions(data.suggestions);
+          } else {
+            setActiveSuggestions([]);
+          }
+          setLoading(false);
+        },
+        // onError callback
+        (err) => {
+          console.error('Failed to stream message:', err);
+          const errorMessage: Message = {
+            id: `err-${Date.now()}`,
+            conversation_id: sessionId || '',
+            sender: 'ai',
+            text: err.message || 'An unexpected error occurred. Please try again.',
+            timestamp: new Date().toISOString(),
+            isError: true,
+          };
+          // Remove the empty streaming bubble and append the error bubble
+          setMessages((prev) =>
+            prev.filter((msg) => msg.id !== aiReplyMessageId).concat(errorMessage)
+          );
+          setLoading(false);
+        }
+      );
     } catch (err: any) {
-      console.error('Failed to send message:', err);
-
-      // 5. Append error message to list
-      const errorMessage: Message = {
-        id: `err-${Date.now()}`,
-        conversation_id: sessionId || '',
-        sender: 'ai',
-        text: err.message || 'An unexpected error occurred. Please try again.',
-        timestamp: new Date().toISOString(),
-        isError: true,
-      };
-
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
+      console.error('Outer send message error:', err);
       setLoading(false);
     }
   };
@@ -99,6 +126,7 @@ export const ChatWidget: React.FC = () => {
     setSessionId(null);
     setMessages([]);
     setError(null);
+    setActiveSuggestions([]);
   };
 
   return (
@@ -162,6 +190,7 @@ export const ChatWidget: React.FC = () => {
         loading={loading}
         historyLoading={historyLoading}
         onSuggestionClick={handleSend}
+        activeSuggestions={activeSuggestions}
       />
 
       <InputBar onSend={handleSend} disabled={loading || historyLoading} />

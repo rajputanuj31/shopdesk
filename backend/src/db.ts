@@ -30,7 +30,38 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_messages_conversation
     ON messages (conversation_id, timestamp);
+
+  CREATE TABLE IF NOT EXISTS knowledge_base (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
 `);
+
+// Synchronize FAQ settings from backend/data/policies.json on startup
+const policiesPath = path.join(__dirname, '../data/policies.json');
+if (fs.existsSync(policiesPath)) {
+  try {
+    const rawData = fs.readFileSync(policiesPath, 'utf8');
+    const policies = JSON.parse(rawData) as Record<string, any>;
+
+    const upsertKb = db.prepare('INSERT OR REPLACE INTO knowledge_base (key, value) VALUES (?, ?)');
+    const transaction = db.transaction((entries: [string, string][]) => {
+      for (const [k, v] of entries) {
+        upsertKb.run(k, v);
+      }
+    });
+
+    const mappedEntries = Object.entries(policies).map(([k, v]) => {
+      const stringValue = typeof v === 'string' ? v : JSON.stringify(v);
+      return [k, stringValue] as [string, string];
+    });
+
+    transaction(mappedEntries);
+    console.log('[db] Synchronized policies from policies.json.');
+  } catch (err) {
+    console.error('[db] Failed to parse/sync policies.json:', err);
+  }
+}
 
 // Types
 export interface Message {
@@ -100,4 +131,16 @@ export function getFullHistory(conversationId: string): Message[] {
        ORDER BY timestamp ASC`
     )
     .all(conversationId) as Message[];
+}
+
+export interface KnowledgeItem {
+  key: string;
+  value: string;
+}
+
+/**
+ * Fetch all domain settings from the knowledge base.
+ */
+export function getKnowledgeBase(): KnowledgeItem[] {
+  return db.prepare('SELECT key, value FROM knowledge_base').all() as KnowledgeItem[];
 }

@@ -8,6 +8,7 @@ interface MessageListProps {
   loading: boolean;
   historyLoading: boolean;
   onSuggestionClick: (text: string) => void;
+  activeSuggestions: string[];
 }
 
 const SUGGESTIONS = [
@@ -22,6 +23,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   loading,
   historyLoading,
   onSuggestionClick,
+  activeSuggestions,
 }) => {
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -74,12 +76,35 @@ export const MessageList: React.FC<MessageListProps> = ({
     );
   }
 
+  const lastMessage = messages[messages.length - 1];
+  const isStreamingActive = !!(lastMessage && lastMessage.sender === 'ai' && lastMessage.text && !lastMessage.isError);
+  const showTyping = loading && !isStreamingActive;
+
+  const visibleMessages = messages.filter(
+    (msg) => !(msg.sender === 'ai' && !msg.text && !msg.isError)
+  );
+
   return (
     <div className="message-list" ref={listRef}>
-      {messages.map((msg) => (
+      {visibleMessages.map((msg) => (
         <MessageBubble key={msg.id} message={msg} />
       ))}
-      {loading && <TypingIndicator />}
+      {showTyping && <TypingIndicator />}
+
+      {!loading && activeSuggestions && activeSuggestions.length > 0 && (
+        <div className="empty-suggestions" style={{ marginTop: '8px', alignSelf: 'flex-start', maxWidth: '80%' }}>
+          {activeSuggestions.map((suggestion, index) => (
+            <button
+              key={index}
+              className="suggestion-chip"
+              onClick={() => onSuggestionClick(suggestion)}
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div ref={bottomRef} />
     </div>
   );
