@@ -6,7 +6,7 @@ import {
 } from './db';
 import { generateReply, HistoryMessage } from './llm.service';
 
-function generateFollowUps(reply: string, userMessage: string): string[] {
+export function generateFollowUps(reply: string, userMessage: string): string[] {
   const text = reply.toLowerCase();
   const suggestions: string[] = [];
 

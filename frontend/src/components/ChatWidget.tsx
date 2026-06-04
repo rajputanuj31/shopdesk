@@ -23,6 +23,9 @@ export const ChatWidget: React.FC = () => {
       getHistory(savedSessionId)
         .then((res) => {
           setMessages(res.messages);
+          if (res.suggestions) {
+            setActiveSuggestions(res.suggestions);
+          }
         })
         .catch((err) => {
           console.error('Failed to load chat history:', err);

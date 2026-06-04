@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { validateMessage } from './validate';
-import { handleMessage } from './chat.service';
+import { handleMessage, generateFollowUps } from './chat.service';
 import { conversationExists, getFullHistory } from './db';
 
 const router = Router();
@@ -31,7 +31,7 @@ router.post('/message', validateMessage, async (req: Request, res: Response) => 
 });
 
 // GET /chat/history/:sessionId
-// Returns: { messages: Message[] }
+// Returns: { messages: Message[], suggestions: string[] }
 router.get('/history/:sessionId', async (req: Request, res: Response) => {
   try {
     const sessionId = String(req.params.sessionId);
@@ -42,7 +42,19 @@ router.get('/history/:sessionId', async (req: Request, res: Response) => {
     }
 
     const messages = getFullHistory(sessionId);
-    res.json({ messages });
+
+    // Compute follow-up suggestions for the last message if it's from the AI
+    let suggestions: string[] = [];
+    if (messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.sender === 'ai') {
+        const userMsg = messages.slice(0, -1).reverse().find((m) => m.sender === 'user');
+        const userText = userMsg ? userMsg.text : '';
+        suggestions = generateFollowUps(lastMsg.text, userText);
+      }
+    }
+
+    res.json({ messages, suggestions });
   } catch (err) {
     console.error('[route] GET /chat/history error:', err);
     res.status(500).json({ error: 'Failed to fetch history. Please try again.' });
